@@ -75,6 +75,8 @@ project-root/
 ├── AGENT_BOARD.md
 ├── .claw-policy.json
 ├── .claw-teams.json
+├── MULTI_AGENT_RUNTIME.md
+├── USAGE.md
 ├── migration-checklist.md
 ├── .claude/
 │   ├── agents/
@@ -101,6 +103,8 @@ project-root/
 - `.claude/rules/*.md`：专题规则文件，用于复用委派、状态画板、质量门禁和工具权限制度。
 - `.claw-policy.json`：机器可读取的策略配置，声明默认编排模式、预算、禁用工具和 hook 提醒。
 - `.claw-teams.json`：多 Agent 团队模板，用于快速组织常见协作队形。
+- `MULTI_AGENT_RUNTIME.md`：说明 soft-constitution、真实多 Agent 和 LangGraph 等运行时如何落地。
+- `USAGE.md`：提供可直接复制给 Agent 的启动 Prompt 和概念探究流程。
 - `migration-checklist.md`：迁移到新项目时的检查清单。
 
 ## Quick Start
@@ -112,6 +116,8 @@ CLAUDE.md
 AGENT_BOARD.md
 .claw-policy.json
 .claw-teams.json
+MULTI_AGENT_RUNTIME.md
+USAGE.md
 .claude/
 migration-checklist.md
 ```
@@ -134,6 +140,39 @@ AGENT_BOARD.md
 ```
 
 4. 要求每个 Agent 完成阶段后更新 `AGENT_BOARD.md`。
+
+## 使用方法
+
+本框架不会因为文件被复制进项目就自动创建多个 Agent。它提供的是宪法、角色、委派协议和状态白板；真实多 Agent 执行需要由 Codex、Claude Code、LangGraph 或自定义 orchestrator 等运行时显式触发。
+
+首次接入项目时，推荐先让 Agent 探究项目概念，再填充宪法模板，而不是直接把模板泛化填写。
+
+推荐启动 Prompt：
+
+```text
+请启动当前项目的 Agent Constitution Framework。
+先探究并确认项目概念，再把已确认内容填充进 CLAUDE.md、AGENT_BOARD.md、.claw-policy.json 和 .claw-teams.json。
+然后按 MULTI_AGENT_RUNTIME.md 判断是否启用真实多 Agent。
+如果适合并且运行时支持，请由 supervisor 分发 explorer、planner、implementer、reviewer、verifier 执行任务。
+如果不能创建子 Agent，请使用 soft-constitution 模式模拟同样的角色流程。
+所有交接和最终总结必须写入 AGENT_BOARD.md。
+```
+
+推荐执行顺序：
+
+```text
+concept discovery -> repository inspection -> constitution filling -> orchestration decision -> task execution
+```
+
+关键要求：
+
+- 已有代码库：先从 README、配置、测试、目录结构和源码中推断项目事实，再只询问缺失或高风险问题。
+- 新项目：先询问项目目标、用户角色、核心实体、状态流转、高风险流程和第一版完成标准。
+- Codex：必须显式说“启用真实多 Agent 模式”，否则通常会按单 Agent 或 soft-constitution 流程执行。
+- 真实多 Agent：每个子 Agent 必须有 `Role`、`Task`、`Scope`、`Forbidden`、`Expected Output` 和 `Acceptance Criteria`。
+- 写入边界：多个 implementer 不得并行修改同一文件；reviewer、verifier、explorer、planner 默认只读。
+
+完整启动 Prompt 见 `USAGE.md`。真实多 Agent 的运行时落地规则见 `MULTI_AGENT_RUNTIME.md`。
 
 ## Recommended Workflow
 
