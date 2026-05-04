@@ -1,0 +1,85 @@
+{
+  "description": "Generic multi-agent team templates. Copy to a project root and customize member names only if your runtime uses different agent names.",
+  "teams": [
+    {
+      "name": "standard-delivery",
+      "description": "Default team for ordinary implementation work with planning, execution, review, and verification.",
+      "members": [
+        "explorer",
+        "planner",
+        "implementer",
+        "reviewer",
+        "verifier",
+        "supervisor"
+      ],
+      "metadata": {
+        "recommended_flow": [
+          "concept-and-boundary-discussion",
+          "explorer",
+          "planner",
+          "implementer",
+          "reviewer",
+          "verifier",
+          "supervisor"
+        ]
+      }
+    },
+    {
+      "name": "project-inception",
+      "description": "Team for starting a new project by clarifying concept, boundaries, entities, workflows, risks, and orchestration mode before implementation.",
+      "members": [
+        "supervisor",
+        "explorer",
+        "planner"
+      ],
+      "metadata": {
+        "required_first_step": "concept-and-boundary-discussion",
+        "outputs": [
+          "project concept",
+          "domain boundaries",
+          "core entities",
+          "state transitions",
+          "user roles",
+          "MVP scope",
+          "verification expectations",
+          "orchestration mode decision"
+        ],
+        "orchestration_modes": [
+          "soft-constitution",
+          "langgraph"
+        ],
+        "default_orchestration_mode": "soft-constitution"
+      }
+    },
+    {
+      "name": "investigation-only",
+      "description": "Read-only team for understanding a codebase or diagnosing a problem without changing files.",
+      "members": [
+        "explorer",
+        "planner",
+        "reviewer",
+        "supervisor"
+      ],
+      "metadata": {
+        "write_allowed": false
+      }
+    },
+    {
+      "name": "high-risk-change",
+      "description": "Team for changes involving APIs, data, security, infrastructure, or broad architectural impact.",
+      "members": [
+        "explorer",
+        "planner",
+        "implementer",
+        "reviewer",
+        "verifier",
+        "supervisor"
+      ],
+      "metadata": {
+        "requires_human_confirmation": true,
+        "requires_review": true,
+        "requires_verification": true
+      }
+    }
+  ]
+}

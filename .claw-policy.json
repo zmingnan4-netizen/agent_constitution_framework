@@ -1,0 +1,98 @@
+{
+  "description": "Generic policy template for agent-governed projects. Copy this file to a project root and adjust budgets, hooks, and denied tools.",
+  "trusted": true,
+  "managedSettings": {
+    "agent.constitution.version": "1.0.0",
+    "agent.default_workflow": "explore-plan-implement-review-verify",
+    "agent.require_verification_for_non_trivial_changes": true,
+    "agent.require_human_confirmation_for_destructive_actions": true,
+    "agent.require_project_concept_boundary_step": true,
+    "agent.orchestration.default_mode": "soft-constitution",
+    "agent.orchestration.langgraph_optional": true
+  },
+  "orchestration": {
+    "defaultMode": "soft-constitution",
+    "availableModes": [
+      "soft-constitution",
+      "langgraph"
+    ],
+    "preProjectStep": {
+      "name": "concept-and-boundary-discussion",
+      "required": true,
+      "purpose": "Before implementation begins, the AI and user clarify the project concept, domain boundaries, data model, user roles, workflows, risk level, and verification expectations.",
+      "requiredQuestions": [
+        "What problem is this project solving?",
+        "Who are the users and what actions can each user perform?",
+        "What entities and state transitions must be tracked?",
+        "Which workflows are business-critical or irreversible?",
+        "What data must be auditable?",
+        "What integrations, printing, scanning, or external devices are required?",
+        "What counts as done for the first usable version?"
+      ]
+    },
+    "langGraphDecision": {
+      "default": "do-not-enable",
+      "decisionOwner": "supervisor",
+      "enableWhenAny": [
+        "Workflow requires durable resumable execution across many user sessions.",
+        "Business state transitions are complex, branching, or safety-critical.",
+        "Multiple agents must be forced through a strict sequence rather than guided by prompts.",
+        "Human approval gates must pause and resume execution deterministically.",
+        "Failures must be retried, rolled back, or routed through explicit recovery paths.",
+        "The same multi-step process must run repeatedly in production, not only during development."
+      ],
+      "keepSoftConstitutionWhenAll": [
+        "Project is still in discovery or prototype phase.",
+        "Agent work happens in short sessions with small context.",
+        "A human can review each major step.",
+        "The process is mostly coding assistance rather than production workflow automation.",
+        "The cost of building a graph would exceed the immediate coordination benefit."
+      ],
+      "requiredOutput": "The supervisor must state orchestration_mode=soft-constitution or orchestration_mode=langgraph, with a short reason."
+    }
+  },
+  "safeEnv": [],
+  "denyTools": [
+    "git_reset_hard",
+    "force_push"
+  ],
+  "denyToolPrefixes": [
+    "dangerous_"
+  ],
+  "budget": {
+    "max_delegated_tasks": 8,
+    "max_tool_calls": 120,
+    "max_model_calls": 40,
+    "max_session_turns": 30
+  },
+  "hooks": {
+    "beforePrompt": [
+      "Apply the project agent constitution before taking action.",
+      "Before starting a new project, complete the concept-and-boundary discussion and decide whether soft-constitution or LangGraph orchestration is appropriate.",
+      "Prefer read-only exploration before file edits when context is incomplete.",
+      "For non-trivial changes, define verification before claiming completion."
+    ],
+    "beforeTool": {
+      "*": [
+        "Check whether the selected tool matches the current role permission class."
+      ],
+      "delegate_agent": [
+        "Every delegation must include role, task, scope, forbidden actions, expected output, and acceptance criteria."
+      ],
+      "write_file": [
+        "Only write files inside the explicit task scope."
+      ],
+      "edit_file": [
+        "Only edit files inside the explicit task scope."
+      ]
+    },
+    "afterTool": {
+      "*": [
+        "Record evidence when a tool result affects the final conclusion."
+      ]
+    },
+    "afterTurn": [
+      "If work is incomplete, state the next blocking step and do not claim completion."
+    ]
+  }
+}
